@@ -9,12 +9,14 @@ import com.example.demo.dtos.ZamowienieDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingErrorProcessor;
 import org.springframework.validation.Errors;
 import org.springframework.validation.MapBindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -29,6 +31,11 @@ public class    Maincontroller {
     public Maincontroller(ZamowienieService zamowienieService) {
         this.zamowienieService = zamowienieService;
 
+    }
+
+    @GetMapping("/throw-error")
+    public String notFound() {
+        throw new GlobalExceptionHandler.ResourceNotFoundException("Zasób nie istnieje.");
     }
 
 
@@ -68,9 +75,8 @@ public class    Maincontroller {
 
 
 
-
     @CrossOrigin(origins = {"*"}, allowedHeaders = {"*"})
-    @PostMapping("/formularz/{id}")
+    @PostMapping(value = "/formularz/{id}", produces = {"application/json", "application/xml"})
     public ResponseEntity<?> dodajPozycjeDoZamowienia(@PathVariable String id, @Valid  @RequestBody  PozycjaZamowienieDTO pozycjaZamowienieDTO , BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             StringBuilder errors = new StringBuilder();
@@ -125,9 +131,11 @@ public class    Maincontroller {
 
     }
 
+
+
     @CrossOrigin
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteZamowienie(@PathVariable Long id) {
+    public ResponseEntity<String> deleteZamowienie(@PathVariable UUID id) {
         zamowienieService.delete(id);
         return ResponseEntity.ok("Zamowienie o ID " + id + " zostało usunięte.");
     }
@@ -142,7 +150,7 @@ public class    Maincontroller {
 
     @CrossOrigin
     @PutMapping("/update/{id}")
-    public ResponseEntity<Zamowienie> updateZamowienie(@PathVariable Long id, @RequestBody Zamowienie zamowienie) {
+    public ResponseEntity<Zamowienie> updateZamowienie(@PathVariable UUID id, @RequestBody Zamowienie zamowienie) {
         Zamowienie updatedZamowienie = zamowienieService.updateZamowienie(id, zamowienie);
         return ResponseEntity.ok(updatedZamowienie);
     }
@@ -155,6 +163,9 @@ public class    Maincontroller {
         List<ZamowienieDTO> zamowienia = zamowienieService.getAllZamowienie();
         return ResponseEntity.ok(zamowienia);
     }
+
+
+
 
 
 }

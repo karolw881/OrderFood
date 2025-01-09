@@ -11,7 +11,7 @@
       <configuration>
         <setting name="validation-enabled" value="true" />
         <datasource-mapping>
-          <factory-entry name="entityManagerFactory" value="6cbd0d6a-bb86-4b7e-8bde-c6c8d1dd3797" />
+          <factory-entry name="entityManagerFactory" value="a1937ec2-bad6-4353-9917-caf5233d3120" />
         </datasource-mapping>
         <naming-strategy-map />
       </configuration>

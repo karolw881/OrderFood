@@ -14,4 +14,6 @@ public interface ZamowienieRepository extends JpaRepository<Zamowienie, Long> {
 
 
     Optional<Zamowienie>  findById(UUID id);
+
+    void deleteById(UUID i);
 }

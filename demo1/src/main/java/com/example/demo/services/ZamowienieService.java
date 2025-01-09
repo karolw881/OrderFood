@@ -52,12 +52,13 @@ public class ZamowienieService {
 
 
 
-    public Zamowienie updateZamowienie(Long id, Zamowienie pZamowienie) {
+    public Zamowienie updateZamowienie(UUID id, Zamowienie pZamowienie) {
         Optional<Zamowienie> oZamowienie = zamowienieRepository.findById(id);
         if (oZamowienie.isPresent()) {
             Zamowienie dopodmiany = oZamowienie.get();
             dopodmiany.setDo_kiedy(pZamowienie.getDo_kiedy());
             dopodmiany.setId(pZamowienie.getId());
+            System.out.println(pZamowienie.getId());
             dopodmiany.setLink(pZamowienie.getLink());
             dopodmiany.setTyp(pZamowienie.getTyp());
             return zamowienieRepository.save(dopodmiany);
@@ -100,8 +101,7 @@ public class ZamowienieService {
 
 
 
-
-    public void delete(Long i) {
+    public void delete(UUID i) {
         zamowienieRepository.deleteById(i);
     }
 
