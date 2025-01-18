@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import com.example.demo.controles.RestWay;
 import com.example.demo.dtos.PozycjaZamowienieDTO;
 import com.example.demo.classes.PozycjaZamowienie;
 import com.example.demo.classes.Zamowienie;
@@ -57,16 +58,15 @@ public class ZamowienieService {
         if (oZamowienie.isPresent()) {
             Zamowienie dopodmiany = oZamowienie.get();
             dopodmiany.setDo_kiedy(pZamowienie.getDo_kiedy());
-            dopodmiany.setId(pZamowienie.getId());
-            System.out.println(pZamowienie.getId());
             dopodmiany.setLink(pZamowienie.getLink());
+           // dopodmiany.setOpis(pZamowienie.getOpis());
             dopodmiany.setTyp(pZamowienie.getTyp());
+            dopodmiany.setData(pZamowienie.getData());
             return zamowienieRepository.save(dopodmiany);
         } else {
             throw new RuntimeException("Zamówienie o ID " + id + " nie zostało znalezione.");
         }
     }
-
 
     public void dodajPozycje(Zamowienie zamowienie, PozycjaZamowienieDTO pozycjaZamowienieDTO) {
         PozycjaZamowienie pozycjaZamowienieEntity = pozycjaZamowienieDTO.toEntity(); // Konwersja DTO do encji
@@ -95,10 +95,19 @@ public class ZamowienieService {
                         .link(z.getLink())
                         .data(z.getData())
                         .do_kiedy(z.getDo_kiedy())
+                        .pozycje(z.getPozycje().stream() // Pobieranie pozycji
+                                .map(p -> PozycjaZamowienieDTO.builder()
+                                        .id(p.getId())
+                                        .opis(p.getOpis())
+                                        .cena(p.getCena())
+                                        .status(p.getStatus())
+                                        .sposob_platnosci(p.getSposob_platnosci())
+                                        .zamawiajacy(p.getZamawiajacy())
+                                        .build())
+                                .collect(Collectors.toList())) // Zbieranie pozycji do listy
                         .build())
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()); // Zbieranie zamówień do listy
     }
-
 
 
     public void delete(UUID i) {
@@ -168,6 +177,25 @@ public class ZamowienieService {
         return zamowienieRepository.findAll();
     }
 
+    public Zamowienie updatePositionInOrder(UUID zamowienieId, Integer pozycjaId, PozycjaZamowienieDTO pozycjaZamowienieDTO) {
+        Zamowienie zamowienie = zamowienieRepository.findById(zamowienieId)
+                .orElseThrow(() -> new RestWay.ResourceNotFoundException("Zamówienie o ID " + zamowienieId + " nie znalezione"));
+
+        PozycjaZamowienie pozycjaZamowienia = zamowienie.getPozycje().stream() // Zmieniamy typ
+                .filter(p -> p.getId().equals(pozycjaId))
+                .findFirst()
+                .orElseThrow(() -> new RestWay.ResourceNotFoundException("Pozycja o ID " + pozycjaId + " nie znaleziona w zamówieniu " + zamowienieId));
+
+        // Aktualizacja pól pozycji zamówienia
+        pozycjaZamowienia.setOpis(pozycjaZamowienieDTO.getOpis());
+        pozycjaZamowienia.setCena(pozycjaZamowienieDTO.getCena());
+        pozycjaZamowienia.setStatus(pozycjaZamowienieDTO.getStatus());
+        pozycjaZamowienia.setSposob_platnosci(pozycjaZamowienieDTO.getSposob_platnosci());
+        pozycjaZamowienia.setZamawiajacy(pozycjaZamowienieDTO.getZamawiajacy());
 
 
+
+        //p.save(pozycjaZamowienia); // Zapisujemy zmiany, używając poprawnego repozytorium
+        return zamowienie; // Zwracamy zaktualizowane zamówienie
+    }
 }

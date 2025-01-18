@@ -9,22 +9,16 @@ import com.example.demo.dtos.ZamowienieDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingErrorProcessor;
-import org.springframework.validation.Errors;
-import org.springframework.validation.MapBindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RequestMapping("/api")
 @RestController
-public class    Maincontroller {
+public class  Maincontroller {
     private final ZamowienieService zamowienieService;
 
 
@@ -33,10 +27,7 @@ public class    Maincontroller {
 
     }
 
-    @GetMapping("/throw-error")
-    public String notFound() {
-        throw new GlobalExceptionHandler.ResourceNotFoundException("Zasób nie istnieje.");
-    }
+
 
 
 
@@ -76,7 +67,7 @@ public class    Maincontroller {
 
 
     @CrossOrigin(origins = {"*"}, allowedHeaders = {"*"})
-    @PostMapping(value = "/formularz/{id}", produces = {"application/json", "application/xml"})
+    @PostMapping(value = "/formularz/{id}")
     public ResponseEntity<?> dodajPozycjeDoZamowienia(@PathVariable String id, @Valid  @RequestBody  PozycjaZamowienieDTO pozycjaZamowienieDTO , BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             StringBuilder errors = new StringBuilder();
