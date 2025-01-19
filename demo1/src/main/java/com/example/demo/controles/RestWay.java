@@ -5,11 +5,15 @@ import com.example.demo.dtos.PozycjaZamowienieDTO;
 import com.example.demo.dtos.ZamowienieDTO;
 import com.example.demo.classes.Zamowienie;
 import com.example.demo.services.ZamowienieService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.UUID;
 
@@ -115,6 +119,47 @@ public class RestWay{
         zamowienieService.updatePositionInOrder(id1, id2, pozycjaZamowienieDTO); // Teraz nie musimy try-catch
         return ResponseEntity.noContent().build(); // Zwracamy 204 No Content po udanej aktualizacji
     }
+
+
+    @GetMapping("/secureAPI")
+    public ResponseEntity securedApi(@RequestHeader HttpHeaders headers) {
+        if (headers.containsKey(HttpHeaders.AUTHORIZATION)) {
+            String authorizationHeader = headers.getFirst(HttpHeaders.AUTHORIZATION);
+            if (authorizationHeader.startsWith("Basic ")) {
+                return new ResponseEntity<>("Authentication passed", HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity("Unauthorized", HttpStatus.UNAUTHORIZED);
+    }
+
+
+
+    @GetMapping("/404")
+    public ResponseEntity<String> testNotFound() {
+        throw new EntityNotFoundException("Zasób nie został znaleziony");
+    }
+
+    @GetMapping("/401")
+    public ResponseEntity<String> testUnauthorized() throws AccessDeniedException {
+        throw new AccessDeniedException("Brak autoryzacji");
+    }
+
+    @GetMapping("/403")
+    public ResponseEntity<String> testForbidden() throws AccessDeniedException {
+        throw new AccessDeniedException("Brak uprawnień do zasobu");
+    }
+
+    @GetMapping("/400")
+    public ResponseEntity<String> testBadRequest() {
+        throw new IllegalArgumentException("Nieprawidłowe parametry żądania");
+    }
+
+    @GetMapping("/500")
+    public ResponseEntity<String> testInternalError() {
+        throw new RuntimeException("Wystąpił wewnętrzny błąd serwera");
+    }
+
+
 
 
     // Exception handler class
